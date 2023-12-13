@@ -1,0 +1,16 @@
+# Compiled data #
+#################
+*.a
+*.mod
+*.o
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+
+# Edited Makefile.in #
+######################
+Makefile.in
