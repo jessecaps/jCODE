@@ -149,6 +149,7 @@ subroutine compute_ibm_collisions
   use geometry
   use grid
   use grid_functions
+  use time_info, only : timestepSize
 
   implicit none
 
@@ -170,6 +171,9 @@ subroutine compute_ibm_collisions
      object(ip)%cForce = 0.0_WP
      object(ip)%cTorque = 0.0_WP
   end do
+
+  ! Set collision time to be 20x the simulation timestep
+  collisionTime = 20.0_WP * timestepSize
 
   ! Implement the collision term
   do ip = 1, nObjects

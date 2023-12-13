@@ -11,6 +11,13 @@
 *.toc
 *.synctex.gz
 bin/
+ensight-3D
+monitor
+grid
+data.*
+part.*
+ibm.*
+levelset.*
 
 # Edited Makefile.in #
 ######################

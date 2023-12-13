@@ -39,8 +39,8 @@ big particle diameter         : 1.0
 big particle volume fraction  : 0.10
 
 ! Lagrangian particle properties
-small particle volume fraction : 0.01
 small particle diameter        : 0.0526315789
+small particle volume fraction : 0.10
 
 ! Initialization files
 init grid file     : grid
@@ -112,13 +112,14 @@ ibm curvature correction: .false.
 regularization parameter : 0
 ibm move              : .true.
 ibm density           : 2571.4
+ibm collisions        : .true.
 
 ! Particle parameters
 include particles            : .true.
 particle density             : 2571.4
 particle specific heat       : 0.8375
 two way coupling             : .true.
-particle filter size         : 0.1
+particle filter size         : 0.15
 drag model                   : loth
 use added mass               : .true.
 use saffman lift             : .false.
@@ -133,10 +134,10 @@ coefficient of friction      : 0.1
 
 ! Solution limits
 enable solution limits : .true.
-minimum density        : 0.1
-minimum temperature    : 0.05
-maximum density        : 10
-maximum temperature    : 10
+minimum density        : 0.01
+minimum temperature    : 0.001
+maximum density        : 100
+maximum temperature    : 100
 
 ! Output
 output type		: ensight
