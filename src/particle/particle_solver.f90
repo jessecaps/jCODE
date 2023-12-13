@@ -260,8 +260,6 @@ subroutine compute_particle_collisions
   use math
   use geometry
   use time_info, only : timestepSize
-  use ibm
-  use ibm_solver, only : ibmDensity
 
   implicit none
 
@@ -547,80 +545,6 @@ subroutine compute_particle_collisions
         end if
      end if
      
-!!$     ! Particle-IBM particle collisions
-!!$     ! ----------------------------
-!!$     if (useIBM.and.ibm_move) then
-!!$
-!!$        do jp=1, nObjects
-!!$
-!!$           ! Extract `particle 2` data
-!!$           pos2   = object(jp)%position
-!!$           vel2   = object(jp)%velocity
-!!$           omega2 = 0.0_WP
-!!$           d2     = (2.0_WP * real(nDimensions, WP) * object(jp)%volume / pi)               &
-!!$                ** (1.0_WP / real(nDimensions, WP))
-!!$           mass2  = oneSixth * ibmDensity * pi * d2**3
-!!$
-!!$           ! Distance between particles `1` and `2`
-!!$           particleSeparation = sqrt(sum((pos1 - pos2) * (pos1 - pos2)))
-!!$
-!!$           ! Guess particle-particle radius of influence
-!!$           radiusOfInfluence = 0.0_WP!0.1_WP * (d1 + d2)
-!!$
-!!$           ! Distance of influence
-!!$           delta = 0.5_WP * (d1 + d2) + radiusOfInfluence - particleSeparation
-!!$           delta = min(delta, clipCol * 0.5_WP * (d1 + d2))
-!!$
-!!$           if (delta .gt. 0.0_WP .and. id1 .ne. id2) then
-!!$              ! Recompute distance of influence
-!!$              n12 = (pos2 - pos1) / particleSeparation
-!!$              v12 = vel1 - vel2
-!!$              rnv = sum(v12 * n12)
-!!$              radiusOfInfluence = min(abs(rnv) * timestepSize, radiusOfInfluence)
-!!$              delta = 0.5_WP * (d1 + d2) + radiusOfInfluence - particleSeparation
-!!$              delta = min(delta, clipCol * 0.5_WP * (d1 + d2))
-!!$              if (delta .gt. 0.0_WP) then
-!!$                 ! Normal collision
-!!$                 v12n = rnv * n12
-!!$                 effectiveMass = mass1 * mass2 / (mass1 + mass2)
-!!$                 springForce = effectiveMass / collisionTime**2 * (pi**2 +          &
-!!$                      log(coefficientOfRestitution)**2)
-!!$                 damper = -2.0_WP * log(coefficientOfRestitution) *                 &
-!!$                      effectiveMass / collisionTime
-!!$                 normalCollision  = -springForce * delta * n12 - damper * v12n
-!!$                 ! Tangential collision
-!!$                 t12 = v12 - v12n + cross_product(0.5_WP * (d1*omega1 + d2*omega2), &
-!!$                      n12)
-!!$                 rtv = sqrt(sum(t12 * t12))
-!!$                 tangentialCollision = 0.0_WP
-!!$                 if (useFriction .and. rtv.gt.0.0_WP) tangentialCollision =         &
-!!$                      -coefficientOfFriction *                                      &
-!!$                      sqrt(sum(normalCollision * normalCollision)) * t12 / rtv
-!!$                 ! Calculate acceleration due to collisions
-!!$                 normalCollision = normalCollision / mass1
-!!$                 tangentialCollision = tangentialCollision / mass1
-!!$                 particles(ip)%collision(1:nDimensions) =                           &
-!!$                      particles(ip)%collision(1:nDimensions) +                      &
-!!$                      normalCollision(1:nDimensions) +                              &
-!!$                      tangentialCollision(1:nDimensions)
-!!$                 ! Calculate collision torque
-!!$                 particles(ip)%torque(1) = particles(ip)%torque(1) + 0.5_WP *       &
-!!$                      (d1 * n12(2) * tangentialCollision(3) -                       &
-!!$                      d1 * n12(3) * tangentialCollision(2))
-!!$                 particles(ip)%torque(2) = particles(ip)%torque(2) + 0.5_WP *       &
-!!$                      (d1 * n12(3) * tangentialCollision(1) -                       &
-!!$                      d1 * n12(1) * tangentialCollision(3))
-!!$                 particles(ip)%torque(3) = particles(ip)%torque(3) + 0.5_WP *       &
-!!$                      (d1 * n12(1) * tangentialCollision(2) -                       &
-!!$                      d1 * n12(2) * tangentialCollision(1))
-!!$                 ! Update collision counter
-!!$                 nParticleCollisions = nParticleCollisions + 1
-!!$              end if
-!!$           end if
-!!$
-!!$        end do
-!!$     end if
-
      ! Particle-particle collisions
      ! ----------------------------
      if (interParticleCollisions) then
