@@ -1,0 +1,91 @@
+# Initialization parameters ############################################################
+
+simulation name : erosion
+
+! Grid size
+nx : 312
+ny : 41
+nz : 126
+Lx : 7.8
+Ly : 1
+Lz : 3.15
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in z : plane
+
+Mean U Velocity : 0.3
+
+! Velocity profile
+profile: couette
+fluctuation amplitude: 0.025
+bed height : 0
+sponge thickness : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+topSponge sponge amount : 4
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin jMax  kMin  kMax
+! ------------------------------------------------------------------------------------
+  bottom               SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1
+  top                  SAT_ISOTHERMAL_WALL   -2       1    -1    -1    -1     1    -1 
+  ensight2d            VISUALIZATION          0      1    -1     1    -1     63    63
+
+top velocity : 0.3 0 0
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 5000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 17333.3333333
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0
+bulk viscosity ratio         : 0
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 2-4
+convective splitting : .true.
+viscous splitting : .true.
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : .01
+cfl                   : 0.8
+number of timesteps   : 10000000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .false.
+composite dissipation : .false.
+dissipation amount    : 0.0001
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Output
+output type : ensight
+output frequency : 9.9999
+dump processor decomp : .false.

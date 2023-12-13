@@ -1,0 +1,115 @@
+# Initialization parameters ############################################################
+
+simulation name : impulsive plate
+
+! Grid size
+nx : 65
+ny : 512
+Lx : 2.56
+Ly : 20.48
+
+curvilinear domain            : .false.
+
+! Periodicity
+periodicity type in x : plane
+
+! Particle properties
+particle distribution         : random
+particle diameter             : 0.01
+particle volume fraction      : 0.01
+particle velocity             : 2.5
+particle velocity fluctuation : 0
+particle layer thickness      : 2
+particle layer position       : 4
+
+! Stretch the grid in y
+grid stretching: .true.
+
+! Free stream
+free stream velocity : 2.5
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init particle file : part.init
+
+# Boundary conditions and patches ######################################################
+
+! Patch holes and penalties
+default sponge amount             : 0.2
+bottomWall viscous penalty amount : 1.0
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  top                  SAT_FAR_FIELD         -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE                -2       1    -1    -16   -1     1    -1  
+  bottomWall           SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1 
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 190000
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.66
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Particle parameters
+include particles          : .true.
+particle density           : 1000.0
+two way coupling           : .true.
+particle collisions        : .false.
+collision time             : 0.00284
+coefficient of restitution : 0.85
+drag model                 : tenneti
+particle filter size       : -4.0
+
+! Chemistry
+equation of state    : ideal gas 
+
+! Discretization scheme
+default discretization scheme : SBP 4-8
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1e-6
+cfl                   : 0.5
+number of timesteps   : 2000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 1e-3
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 10
+minimum temperature    : 0.01
+maximum temperature    : 10
+minimum mass fraction  : -2.0
+maximum mass fraction  : 2.0
+
+! Monitor
+monitor impulse y value : 10
+
+! Output
+output type : ensight
+output frequency : 99.999e-3

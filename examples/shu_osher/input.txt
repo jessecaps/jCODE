@@ -1,0 +1,97 @@
+# Initialization parameters ############################################################
+
+simulation name : shu osher
+
+! Grid size
+nx : 201
+ny : 10
+nz : 1
+Lx : 10.0
+Ly : 0.5
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in y : plane
+
+! Shock tube properties
+shock position      : -4.0
+!post-shock density  : 3.857143
+!post-shock pressure : 10.3333
+!post-shock velocity : 2.629369
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Patch holes and penalties
+default sponge amount             : 0.2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  left                 SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  right                SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+include viscous terms        : .false.
+ratio of specific heats      : 1.4
+
+! Chemistry
+equation of state : ideal gas 
+
+! Discretization scheme
+default discretization scheme : SBP 4-8
+time integration scheme       : RK4
+convective splitting          : .true.
+viscous splitting             : .false.
+
+! Time stepping options
+use constant CFL mode : .false.
+time step size        : 4e-3
+cfl                   : 0.5
+number of timesteps   : 99999
+final time            : 1.8
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 5.0e-2
+use hybrid dissipation : .false.
+dissipation sensor : ducros
+
+use shock capturing : .true.
+shock capturing coefficient : 1
+
+filter solution : .false.
+filtering scheme: implicit
+filter parameter : 0.49
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 100
+minimum temperature    : 0.01
+maximum temperature    : 100
+
+! Output
+output type           : ensight
+output frequency      : 1.8
+dump dilatation       : .true.
+dump schlieren        : .true.

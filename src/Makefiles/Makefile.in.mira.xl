@@ -1,0 +1,34 @@
+%.o: %.mod
+# Directories
+HOMEDIR = $(shell pwd | sed -e 's/\/src.*//')
+LIBDIR  = $(HOMEDIR)/lib
+MODDIR  = $(HOMEDIR)/mod
+OBJDIR  = $(HOMEDIR)/obj
+BINDIR  = $(HOMEDIR)/bin
+VPATH   = $(LIBDIR) $(BINDIR) $(OBJDIR)
+
+# Compiler and archiver
+CC  = mpixlc_r
+CXX = mpixlcxx_r
+F90 = mpixlf90_r
+F77 = mpixlf77_r
+LD  = mpixlf77_r
+AR  = ar rcv
+RL  = ranlib
+
+# Preprocessing options
+OPTIONS =
+
+# Compiler flags
+CFLAGS   =
+F90FLAGS = 
+F77FLAGS = 
+LDFLAGS  =
+INCFLAGS = -I $(MODDIR)
+MODFLAGS = -I $(MODDIR)
+DBGFLAGS = -O0 -g -qmoddir=$(MODDIR)
+OPTFLAGS = -O3 -qmoddir=$(MODDIR) -qhot=vector -qhot=fastmath -qunroll
+
+# Installation script
+INSTDIR = $(HOME)/bin
+INSTSCPT = cp $(BINDIR)/* $(INSTDIR)/.

@@ -1,0 +1,123 @@
+# Initialization parameters ############################################################
+
+simulation name : quiescent
+
+! Grid size
+nx : 201
+ny : 201
+Lx : 28
+Ly : 28
+
+curvilinear domain : .false.
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Boundary penalties
+default viscous penalty amount : 0
+
+! Sponge strength
+default sponge amount : 0.2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  farField.E           SAT_FAR_FIELD          1       1    1      1    -1     1    -1
+  farField.W           SAT_FAR_FIELD         -1      -1   -1      1    -1     1    -1
+  farField.S           SAT_FAR_FIELD          2       1   -1      1     1     1    -1
+  farField.N           SAT_FAR_FIELD         -2       1   -1     -1    -1     1    -1
+  sponge.E             SPONGE                 1       1    29     1    -1     1    -1
+  sponge.W             SPONGE                -1      -29  -1      1    -1     1    -1
+  sponge.S             SPONGE                 2       1   -1      1     29    1    -1
+  sponge.N             SPONGE                -2       1   -1     -29   -1     1    -1
+  targetRegion         COST_TARGET            0       89   113    25    177   1    -1
+  controlRegion        ACTUATOR               0       104  141    82    120   1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .false.
+use serial io	       : .false.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 20
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 200.0
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0
+bulk viscosity ratio         : 0
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .false.
+time step size        : 0.05
+cfl                   : 0.5
+number of timesteps   : 480
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.005
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Acoustic source
+number of acoustic sources  : 1
+acoustic source 1 amplitude : 1
+acoustic source 1 frequency : 0.477464829275686
+acoustic source 1 x         : -3
+acoustic source 1 radius    : 2.1213203435596424
+
+! Output
+output type : ensight
+output frequency : 0.499999
+
+# Adjoint parameters ###################################################################
+
+! Adjoint flags
+disable adjoint solver        : .false.
+use continuous adjoint        : .false.
+baseline prediction available : .false.
+
+! Files
+adjoint file to write : data.adjoint
+
+! Cost functional
+cost functional type       : sound
+target support type in x   : cubic
+target support type in y   : tanh
+target mollifier steepness : 40
+target mollifier fraction  : 1.0
+
+! Controller
+controller type           : thermal actuator
+gradient buffer size      : 20
+control support type in x : cubic
+control support type in y : cubic
+
+! Gradient accuracy options
+check gradient accuracy           : .true.
+number of control iterations      : 32
+initial actuation amount          : 1e4
+restart control iteration         : 0
+actuation amount geometric growth : 0.5623413251903491

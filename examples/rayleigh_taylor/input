@@ -1,0 +1,129 @@
+# Initialization parameters ############################################################
+
+simulation name : rayleigh taylor
+
+! Grid size
+nx : 512
+ny : 1024
+Lx : 6.283185307179586
+Ly : 12.566370614359172
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+
+! Stretch the grid in y
+grid stretching : .false.
+
+! RT parameters
+number of species           : 1
+initial diffusion thickness : 0.061359232
+number of modes             : 1
+perturbation wave number    : 1.0
+perturbation amplitude      : 0.01
+
+rayleigh taylor velocity correction : .true.
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Boundry penalties
+bottom enforce wall mass fraction : .false.
+top enforce wall mass fraction    : .false.
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  bottom               SAT_SLIP_WALL         2       1    -1     1     1     1    -1
+  bottomSponge         SPONGE                2       1    -1     1     40    1    -1
+  top                  SAT_SLIP_WALL        -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE               -2       1    -1    -40   -1     1    -1
+  targetRegion         COST_TARGET           0       1    -1     1    -1     1    -1
+  controlRegion        ACTUATOR              0       1    -1     1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+adjoint file to write  : data.adjoint
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+include viscous terms : .false.
+Reynolds number : 500.0
+Prandtl number  : 0.7
+viscosity power law exponent : 0.0
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Mixture
+equation of state : ideal gas mixture
+Atwood number     : 0.5
+Schmidt number    : 1.0
+
+! Gravity
+include gravity : .true.
+gravity norm    : 0 -1 0
+Froude number   : 11.11111
+
+! Discretization scheme
+default discretization scheme : SBP 4-8
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.9
+number of timesteps   : 1000000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.0001
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.001
+minimum temperature    : 0.05
+minimum mass fraction  : -1.2
+maximum density        : 100
+maximum temperature    : 1000
+maximum mass fraction  : 1.2
+
+! Output
+output type : ensight
+output frequency : 0.99999
+
+# Adjoint parameters ###################################################################
+
+! Adjoint flags
+disable adjoint solver        : .true.
+baseline prediction available : .false.
+use continuous adjoint        : .false.
+
+! Cost functional
+cost functional type : binary mixing
+
+! Controller
+controller type              : perturbation actuator
+number of control parameters : 1
+sensitivity parameter 1      : k
+
+! Gradient accuracy options
+check gradient accuracy           : .true.
+number of control iterations      : 48
+initial actuation amount          : 1
+restart control iteration         : 0
+actuation amount geometric growth : 0.5623413251903491

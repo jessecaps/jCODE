@@ -1,0 +1,109 @@
+# Initialization parameters ############################################################
+
+simulation name : ibm particle
+
+! Grid size
+nx : 200
+ny : 200
+Lx : 10
+Ly : 10
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in y : plane
+
+! Flow parameters
+crossflow mach number : 0.2
+
+! Particle properties
+particle volume fraction : 0.3
+particle temperature     : 2.5
+particle mean diameter   : 1
+particle distribution    : random
+set seed : .false.
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init ibm file      : ibm.init
+
+# Boundary conditions and patches ######################################################
+
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+ibm file to read       : ibm.init
+ibm file to write      : ibm
+save interval          : 100
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 2142.857
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+viscous splitting : .false.
+use upwinding : .false.
+
+! Time stepping options
+use constant CFL mode : .true.
+cfl                   : 0.8
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 0.05
+
+use shock capturing       : .true.
+shock capturing coefficient : 1
+
+! Forcing
+force momentum : x y
+target momentum : 0.2 0
+force density : .true.
+force temperature : .true.
+
+! Immersed boundary
+use immersed boundary : .true.
+ibm type              : particle
+ibm ghost points      : .true.
+ibm slip              : .false.
+ibm isothermal        : .false.
+ibm move              : .true.
+ibm density           : 2000
+ibm collisions        : .true.
+collision time        : 0.5
+coefficient of restitution : 0.9
+coefficient of friction : 0.1
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.001
+minimum temperature    : 0.1
+maximum density        : 1000
+maximum temperature    : 1000
+
+! Output
+output type : ensight
+output frequency : 1.9999999
+dump dilatation : .true.
+dump schlieren : .true.
+dump vorticity : .true.
+dump ibm particles : .true.

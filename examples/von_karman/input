@@ -1,0 +1,92 @@
+# Initialization parameters ############################################################
+
+simulation name : cylinder
+
+! Grid size
+nx : 257
+ny : 129
+Lx : 20
+
+curvilinear domain : .true.
+
+! Periodicity
+periodicity type in y : overlap
+
+! Cylinder properties
+cylinder radius : 0.5
+use stretching  : .false.
+
+! Flow properties
+crossflow mach number : 0.2
+cylinder perturbations : .true.
+cylinder perturbation amplitude : .05
+cylinder perturbation frequency : 10
+cylinder perturbation sigma : 2
+
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Boundry penalties
+default viscous penalty amount : 1
+
+! Sponge strength
+default sponge amount : 0.2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  perimeter            SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  !sponge               SPONGE                -1      -8    -1     1    -1     1    -1
+  wall                 SAT_ISOTHERMAL_WALL    1       1     1     1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 200
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 600
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0
+bulk viscosity ratio         : 0
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 0.05
+cfl                   : 0.9
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 0.001
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Output
+output type : ensight
+output frequency : 3.99999

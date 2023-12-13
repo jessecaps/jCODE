@@ -1,0 +1,96 @@
+# Processor decomposition ##############################################################
+
+use manual domain decomposition : .false.
+processor decomposition : 2 1 1
+
+# Initialization parameters ############################################################
+
+simulation name : channel
+
+! Grid size
+nx : 128
+ny : 65
+nz : 8
+Lx : 8
+Ly : 1
+Lz : 0.5
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in z : plane
+
+! Stretch the grid in y
+stretching : 1
+
+! channel
+laminar profile       : .false.
+mean velocity         : 0.3
+fluctuation amplitude : 0.075
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  bottomWall           SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1
+  topWall              SAT_ISOTHERMAL_WALL   -2       1    -1    -1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 200
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 4333.0
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+viscous splitting             : .true.
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : .004
+cfl                   : 0.5
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 0.002
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Momentum forcing
+force momentum : x
+force density : .false.
+force temperature : .false.
+
+! Output
+output type : ensight
+output frequency : 0.9999

@@ -1,0 +1,106 @@
+# Initialization parameters ############################################################
+
+simulation name : fluidized bed
+
+! Grid size
+nx : 64
+ny : 128
+Lx : 128
+Ly : 256
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+
+Mean V Velocity : 0.1
+
+! Particle properties
+bed height                     : 128
+particle distribution          : uniform
+particle diameter              : 1
+particle volume fraction       : 0.4
+particle velocity fluctuations : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init particle file : part.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin jMax  kMin  kMax
+! ------------------------------------------------------------------------------------
+  inflow               SAT_FAR_FIELD          2       1    -1     1     1     1    -1
+  top                  SAT_FAR_FIELD         -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE                -2       1    -1    -32   -1     1    -1
+  inflowSponge            SPONGE              2       1    -1     1     8     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 10
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Manual processor decomposition
+use manual domain decomposition : .true.
+processor decomposition : 1 4 1
+
+! Gravity
+include gravity : .true.
+gravity norm    : 0 -1 0
+Froude number   : 1e7
+
+! Thermo-fluid properties
+Reynolds number : 2.2867e4
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Particle parameters
+include particles          : .true.
+particle density           : 2000
+two way coupling           : .true.
+particle collisions        : .true.
+collision time             : 18
+coefficient of restitution : 0.85
+drag model                 : tenneti
+
+! Discretization scheme
+default discretization scheme : SBP 2-4
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : .01
+cfl                   : 0.9
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.005
+
+! Solution limits
+enable solution limits : .false.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Output
+output type : ensight
+output frequency : 99.999999

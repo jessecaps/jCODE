@@ -1,0 +1,87 @@
+# Initialization parameters ############################################################
+
+simulation name : taylor green vortex
+
+! Grid size
+nx : 257
+ny : 257
+nz : 257
+Lx : 6.28318530717958647692528676656
+Ly : 6.28318530717958647692528676656
+Lz : 6.28318530717958647692528676656
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in y : plane
+periodicity type in z : plane
+
+! Taylor-Green parameters
+initial velocity : 0.1
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  targetRegion         COST_TARGET           0       1    -1     1     -1     1    -1
+  controlRegion        ACTUATOR              0       1    -1     1     -1     1    -1
+  ensight              VISUALIZATION         0       1    -1     1     -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 16000.
+Prandtl number  : 0.71
+include viscous terms : .true.
+viscosity power law exponent : 1.0
+bulk viscosity ratio         : 0.0
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 4-8
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .false.
+time step size        : 5.e-3
+cfl                   : 0.5
+number of timesteps   : 130000
+report interval       : 10
+
+! Artificial dissipation
+add dissipation : .true.
+dissipation amount : 0.001
+composite dissipation : .false.
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+minimum temperature    : 0.01
+minimum mass fraction  : -0.25
+maximum density        : 20.
+maximum temperature    : 5000.
+maximum mass fraction  : 1.25
+
+! Output
+output type : ensight
+output frequency : 1.5
+dump primative variables : .true.

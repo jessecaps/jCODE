@@ -1,0 +1,101 @@
+# Initialization parameters ############################################################
+
+simulation name : particle box
+
+! Grid size
+nx : 128
+ny : 128
+Lx : 512
+Ly : 512
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in y : plane
+
+! Particle properties
+particle distribution          : random
+particle mean diameter         : 0.4
+particle volume fraction       : 0.01
+particle velocity fluctuations : 0.01
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init particle file : part.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin jMax  kMin  kMax
+! ------------------------------------------------------------------------------------
+!  ensight             VISUALIZATION         0        1     -1    1   -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Gravity
+include gravity : .true.
+gravity norm    : 0 -1 0
+Froude number   : 29358
+
+! Thermo-fluid properties
+Reynolds number : 400
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Particle parameters
+include particles          : .true.
+particle density           : 1000
+two way coupling           : .true.
+particle collisions        : .true.
+collision time             : 20
+coefficient of restitution : 0.85
+drag model                 : tenneti!schiller naumann
+particle filter size       : -4.0
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.5
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.005
+
+! Solution limits
+enable solution limits : .false.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Forcing
+force momentum : y
+
+! Output
+output type : ensight
+output frequency : 199.999999

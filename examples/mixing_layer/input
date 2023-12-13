@@ -1,0 +1,156 @@
+# Initialization parameters ############################################################
+
+simulation name : mixing layer
+
+! Grid size
+nx : 1025
+ny : 513
+Lx : 210
+Ly : 100
+
+curvilinear domain : .false.
+
+! Stretch the grid in y
+grid stretching : .true.
+
+! Mixing layer
+mixing layer upper velocity    : 0.6
+mixing layer lower velocity    : 0.1
+mixing layer growth origin     : 30
+!mixing layer upper temperature : 9
+!mixing layer lower temperature : 7
+!mixing layer pressure          : 2.857142857142857
+
+! Mixture
+number of species              : 2
+initial mixture fraction       : 1
+initial fuel mass fraction     : 0.06666
+initial oxidizer mass fraction : 0.233
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Penalty parameters
+default viscous penalty amount : 1
+default sponge amount	       : 0.2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  inflow               SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  inflowSponge         SPONGE                 1       1     148   1    -1     1    -1
+  outflow              SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  !outflowSponge        SPONGE                -1      -32   -1     1    -1     1    -1
+  bottom               SAT_FAR_FIELD          2       1    -1     1     1     1    -1
+  bottomSponge         SPONGE                 2       1    -1     1     32    1    -1
+  top                  SAT_FAR_FIELD         -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE                -2       1    -1    -32   -1     1    -1  
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 1000.0
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Chemistry
+equation of state    : ideal gas mixture
+combustion model     : one step
+Schmidt number       : 0.7 0.7 0.7
+active species       : H2 O2
+inert species        : N2
+reference species    : AIR
+stoichiometric ratio : 8
+heat release         : 0.86
+Zel Dovich           : 6
+Damkohler number     : 500000
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.5
+number of timesteps   : 60000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation : .true.
+dissipation amount : 0.01
+composite dissipation : .true.
+
+! Inflow excitation
+use solenoidal excitation  : .true.
+excitation number of modes : 8
+excitation x               : 20
+excitation u               : 0.1
+excitation amplitude       : 0.002
+excitation frequency       : 0.128
+excitation radius          : 4.7434164902525691
+excitation random seed     : 685785
+
+! Ignition source
+use ignition source           : .false.
+ignition source energy        : 10
+ignition source radius x      : 1
+ignition source radius y      : 1
+ignition source x             : 38
+ignition source y             : 1
+ignition source time start    : 1000
+ignition source time duration : 2
+ignition source is multivariate : .true.
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.001
+minimum temperature    : 0.01
+minimum mass fraction  : -1
+maximum density        : 10
+maximum temperature    : 100
+maximum mass fraction  : 1.2
+
+! Output
+output type : ensight
+output frequency : 19.99999
+dump processor decomp : .false.
+dump Q criterion : .false.
+
+# Adjoint parameters ###################################################################
+
+! Adjoint flags
+disable adjoint solver        : .true.
+use continuous adjoint        : .false.
+baseline prediction available : .false.
+
+! Cost functional
+cost functional type : temperature
+
+! Controller
+controller type      : fuel actuator
+gradient buffer size : 20
+
+! Gradient accuracy options
+check gradient accuracy           : .true.
+number of control iterations      : 48
+initial actuation amount          : 1
+restart control iteration         : 0
+actuation amount geometric growth : 0.5623413251903491

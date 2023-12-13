@@ -1,0 +1,100 @@
+# Initialization parameters ############################################################
+
+simulation name : boundary layer
+
+! Grid size
+nx : 513
+ny : 129
+Lx : 25
+Ly : 5.35
+
+curvilinear domain : .true.
+
+! Stretch the grid in y
+grid stretching : .true.
+
+! Boundary layer
+free stream velocity : 0.3
+blasius virtual origin : 1.0
+
+! Sandpaper
+include sandpaper      : .false.
+sandpaper location     : 2
+sandpaper width        : 4
+sandpaper height       : 0.2
+include sandpaper grit : .true.
+sandpaper grit height  : 0.05
+sandpaper grit width   : 0.05
+number of sandpaper particles : 10
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Penalty parameters
+default sponge amount             : 0.2
+default inviscid penalty amount   : 2
+default viscous penalty amount    : 0
+bottomWall viscous penalty amount : 1
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  bottomWall           SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1
+  top                  SAT_FAR_FIELD         -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE                -2       1    -1     118  -1     1    -1  
+  inflow               SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  inflowSponge         SPONGE                 1       1     10    1    -1     1    -1 
+  outflow              SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  outflowSponge        SPONGE                -1       500  -1     1    -1     1    -1
+
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 10
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 1000.0
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.5
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.002
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Output
+output type : ensight
+output frequency : 0.09999

@@ -1,0 +1,124 @@
+# Initialization parameters ############################################################
+
+simulation name : shock tube
+
+! Grid size
+nx : 513
+ny : 64
+Lx : 1024
+Ly : 128
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in y : plane
+
+! Shock tube properties
+shock position      : 500
+post-shock density  : 2.1
+post-shock pressure : 2.14285714285713
+post-shock velocity : 0.8668
+pre-shock density   : 1
+pre-shock pressure  : 0.71428571428571
+pre-shock velocity  : 0
+
+! Particle properties
+particle distribution         : random
+prevent particle overlap      : .true.
+particle volume fraction      : 0.21
+particle layer thickness      : 20
+particle layer position       : 512
+particle mean diameter        : 1
+particle min diameter         : 1
+particle max diameter         : 1
+particle std diameter         : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init particle file : part.init
+
+# Boundary conditions and patches ######################################################
+
+! Patch holes and penalties
+default sponge amount : 2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  left                 SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  leftSponge           SPONGE                 1       1     32    1    -1     1    -1 
+  right                SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  rightSponge          SPONGE                -1      -32   -1     1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number              : 2286.7
+Prandtl number               : 0.7
+include viscous terms        : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Particle parameters
+include particles            : .true.
+particle density             : 2520
+particle specific heat       : 0.8375
+two way coupling             : .true.
+particle filter size         : 4
+particle collisions          : .true.
+collision time               : 10
+particle wall in x           : .false.
+coefficient of restitution   : 0.85
+coefficient of friction      : 0.1
+drag model                   : gidaspow
+use granular temperature     : .true.
+use added mass               : .false.
+
+! Chemistry
+equation of state : ideal gas 
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+convective splitting          : .true.
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 0.01
+cfl                   : 0.8
+number of timesteps   : 5000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : .005
+use shock capturing : .false.
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 10
+minimum temperature    : 0.01
+maximum temperature    : 10
+minimum mass fraction  : -2.0
+maximum mass fraction  : 2.0
+
+! Output
+output type           : ensight
+output frequency      : 9.9999999

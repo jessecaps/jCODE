@@ -1,0 +1,96 @@
+# Initialization parameters ############################################################
+
+simulation name : ibm
+
+! Grid size
+nx : 385
+ny : 384
+Lx : 10
+Ly : 10
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in y : plane
+
+! Flow parameters
+ibm case : cylinder
+crossflow mach number : 0.1
+
+! Cylinder properties
+cylinder radius : 0.5
+number of ibm particles : 200
+cylinder x position : 5
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init ibm file      : ibm.init
+init levelset file : levelset.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  left            SAT_FAR_FIELD                 1      1     1    1    -1     1    -1
+  sponge          SPONGE                        1      1     8    1    -1     1    -1
+  right           SAT_OUTFLOW                  -1     -1    -1    1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+ibm file to read       : ibm.init
+ibm file to write      : ibm
+levelset file to read  : levelset.init
+levelset file to write : levelset
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 600
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0
+bulk viscosity ratio         : 0
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 0.05
+cfl                   : 0.8
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.003
+
+! Immersed boundary
+use immersed boundary : .true.
+ibm ghost points      : .true.
+filter ibm            : .true.
+ibm type              : particle
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 10
+maximum temperature    : 10
+
+! Output
+output type : ensight
+output frequency : 4.99999

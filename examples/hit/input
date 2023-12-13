@@ -1,0 +1,92 @@
+# Initialization parameters ############################################################
+
+simulation name : HIT
+
+! Grid size
+nx : 128
+ny : 128
+!nz : 128
+Lx : 6.28318530718
+Ly : 6.28318530718
+!Lz : 6.28318530718
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in y : plane
+!periodicity type in z : plane
+
+! Turbulence parameters
+fluctuations    : 0.3
+energetic scale : 1.0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin jMax  kMin  kMax
+! ------------------------------------------------------------------------------------
+  front               VISUALIZATION         0        1     -1    1   -1     1     1
+  back                VISUALIZATION         0        1     -1    1   -1    -1    -1
+  left                VISUALIZATION         0        1      1    1   -1     1    -1
+  right               VISUALIZATION         0       -1     -1    1   -1     1    -1
+  top                 VISUALIZATION         0        1     -1    1    1     1    -1
+  bottom              VISUALIZATION         0        1     -1   -1   -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 1000
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.8
+number of timesteps   : 100000
+report interval       : 1
+
+! Linear forcing
+use linear forcing : .false.
+forcing coefficient : 0.1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.005
+
+! Solution limits
+enable solution limits : .false.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Output
+output type : ensight
+output frequency : 1.999999
+dump vorticity : .true.
+dump dilatation : .true.

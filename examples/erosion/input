@@ -1,0 +1,140 @@
+# Initialization parameters ############################################################
+
+simulation name : erosion
+
+! Grid size
+nx : 312
+ny : 93
+nz : 1
+Lx : 7.8
+Ly : 1.3
+!Lz : 3.15
+
+curvilinear domain : .false.
+
+! Grid stretching
+stretch grid above bed : .true.
+bed height             : 0.3
+min dy                 : 0.0125
+max dy                 : 0.025
+stretching coefficient : 2
+
+! Periodicity
+periodicity type in x : plane
+!periodicity type in z : plane
+
+! Fluid properties
+profile         : couette
+Mean U Velocity : 0.5
+fluctuation amplitude : .01
+
+! Particle properties
+initial bed height             : 0.6
+particle distribution          : uniform
+particle diameter              : 0.01666666666
+particle volume fraction       : 0.43
+particle velocity fluctuations : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init particle file : part.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin jMax  kMin  kMax
+! ------------------------------------------------------------------------------------
+  bottom               SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1
+  top                  SAT_ISOTHERMAL_WALL   -2       1    -1    -1    -1     1    -1
+
+top velocity : 0.5 0 0
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+particle file to read  : part.init
+particle file to write : part
+save interval          : 500
+report interval        : 1
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Manual processor decomposition
+use manual domain decomposition : .false.
+processor decomposition : 4 1 1
+
+! Gravity
+include gravity : .false.
+gravity norm    : 0 -1 0
+Froude number   : 1e7
+
+! Thermo-fluid properties
+Reynolds number : 17333.3333333
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Particle parameters
+include particles          : .true.
+particle density           : 320000
+two way coupling           : .true.
+particle collisions        : .true.
+collision time             : 18
+coefficient of restitution : 0.85
+drag model                 : tenneti
+particle filter size       : 0.05
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+convective splitting : .true.
+viscous splitting : .true.
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : .01
+cfl                   : 0.5
+number of timesteps   : 1000000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .false.
+composite dissipation : .false.
+dissipation amount    : 0.005
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.1
+minimum temperature    : 0.05
+maximum density        : 2
+maximum temperature    : 4
+
+! Momentum forcing
+!force momentum : x
+force density : .false.
+force temperature : .false.
+!target momentum : 0.5 0 0
+use time ramp : .false.
+time ramp duration : 10
+
+! Output
+output type : ensight
+output frequency : 9.999999
+dump schlieren : .true.
+dump viscosity : .true.
+dump artificial viscosity : .true.
+dump Q criterion : .false.
+dump processor decomp : .false.
+dump vorticity : .false.
+dump dilatation : .true.
+dump Mach number : .true.
+dump grid norm : .true.
+dump jacobian : .true.

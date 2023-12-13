@@ -1,0 +1,31 @@
+%.o: %.mod
+# Directories
+HOMEDIR = $(shell pwd | sed -e 's/\/src.*//')
+LIBDIR  = $(HOMEDIR)/lib
+MODDIR  = $(HOMEDIR)/mod
+OBJDIR  = $(HOMEDIR)/obj
+BINDIR  = $(HOMEDIR)/bin
+VPATH   = $(LIBDIR) $(BINDIR) $(OBJDIR)
+
+# Compiler and archiver
+CC  = mpicc
+CXX = mpicxx
+F90 = mpif90
+F77 = mpif90
+LD  = mpif90
+AR  = ar rcv
+RL  = ranlib
+
+# Compiler flags
+CFLAGS   =
+F90FLAGS = -cpp
+F77FLAGS =
+LDFLAGS  =
+INCFLAGS =
+MODFLAGS = -module $(MODDIR)
+DBGFLAGS = -O0 -g -CA -CB -CS -traceback -debug all -ftrapuv -check all -WB -warn all
+OPTFLAGS = -O2 -xHost
+
+# Installation script
+INSTDIR = $(HOME)/bin
+INSTSCPT = cp $(BINDIR)/* $(INSTDIR)/.

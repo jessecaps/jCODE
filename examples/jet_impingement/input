@@ -1,0 +1,154 @@
+# Initialization parameters ############################################################
+
+simulation name : nozzle
+
+! Grid size
+nx : 201
+ny : 401
+Lx : 5
+Ly : 10
+
+curvilinear domain : .false.
+grid stretching : .false.
+
+! Nozzle parameters
+nozzle type          : tanh
+inner diameter 1     : 2
+inner diameter 2     : 1
+outer diameter 1     : 5
+outer diameter 2     : 1
+length               : 2
+straight length      : 1
+wall thickness       : 0.5
+steepness            : 7
+convergence location : 1.125
+
+! Gas properties
+nozzle velocity    : 0.1256
+nozzle temperature : 2.4921
+nozzle pressure    : 2.8469
+
+! Particles
+!init particle file : part.init
+bed height                     : 1
+particle distribution          : uniform
+particle diameter              : .02
+particle volume fraction       : 0.5
+particle velocity fluctuations : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+init levelset file : levelset.init
+
+# Boundary conditions and patches ######################################################
+
+leftSponge sponge amount : 4
+
+patches :
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  left            SAT_FAR_FIELD                 1      1     1    1    -1     1    -1
+  leftSponge      SPONGE                        1      1    16    1    -1     1    -1
+  right           SAT_SLIP_WALL                -1     -1    -1    1    -1     1    -1
+  bottom          SAT_FAR_FIELD                 2      1    -1    1     1     1    -1
+  top             SAT_FAR_FIELD                -2      1    -1   -1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+levelset file to read  : levelset.init
+particle file to read  : part.init
+particle file to write : part
+save interval          : 200
+
+! Manual processor decomposition
+use manual domain decomposition : .false.
+processor decomposition : 2 2 1
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 2.2872e+04
+Prandtl number  : 0.71
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Gravity
+include gravity : .true.
+gravity norm    : 1 0 0
+Froude number   : 8.0335e+05
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : rk4
+convective splitting          : .true.
+viscous splitting             : .false.
+use upwinding                 : .false.
+upwind scheme                 : SBP 3-6
+
+! Time stepping options
+use constant CFL mode : .true.
+cfl                   : 0.5
+number of timesteps   : 30000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 0.01
+
+! Shock capturing
+use shock capturing   : .true.
+shock capturing coefficient : 1
+
+! Immersed boundary
+use immersed boundary : .true.
+ibm ghost points      : .true.
+ibm slip              : .false.
+ibm isothermal        : .false.
+ibm temperature       : 2.9046
+
+! LES
+use viscosity model : .false.
+subgrid-scale model : Smagorinsky
+viscosity model coefficient : 0.18
+
+! Particle parameters
+include particles            : .false.
+two way coupling             : .false.
+use saffman lift             : .true.
+use granular temperature     : .true.
+particle density             : 2520
+particle specific heat       : 0.8375
+drag model                   : gidaspow
+particle filter size         : 0.08
+particle collisions          : .true.
+collision time               : .09
+particle wall in x           : .true.
+particle wall in y           : .false.
+particle wall in z           : .false.
+coefficient of restitution   : 0.85
+coefficient of friction      : 0.1
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+minimum temperature    : 0.01
+maximum density        : 100
+maximum temperature    : 100
+
+! Output
+output type : ensight
+output frequency : 0.4999999
+dump schlieren : .true.
+dump dilatation : .true.
+dump Q criterion : .false.

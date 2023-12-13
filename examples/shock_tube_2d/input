@@ -1,0 +1,96 @@
+# Initialization parameters ############################################################
+
+simulation name : shock tube
+
+! Grid size
+nx : 1281
+ny : 641
+Lx : 1
+Ly : 0.5
+
+curvilinear domain : .false.
+
+! Shock tube properties
+shock position      : 0.5
+post-shock density  : 120
+post-shock pressure : 85.7142857143
+post-shock velocity : 0
+pre-shock density   : 1.2
+pre-shock pressure  : 0.85714285714
+pre-shock velocity  : 0
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+default viscous penalty amount : 1
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  top                  SAT_SLIP_WALL         -2       1    -1    -1    -1     1    -1
+  bottom               SAT_ADIABATIC_WALL     2       1    -1     1     1     1    -1
+  left                 SAT_ADIABATIC_WALL     1       1     1     1    -1     1    -1 
+  right                SAT_ADIABATIC_WALL    -1      -1    -1     1    -1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number              : 1000
+Prandtl number               : 0.73
+include viscous terms        : .true.
+viscosity power law exponent : 0
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Chemistry
+equation of state : ideal gas 
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+viscous splitting             : .true.
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 0.01
+cfl                   : 0.5
+number of timesteps   : 50000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : 0.001
+use shock capturing : .true.
+shock capturing coefficient : 0.3
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 400
+minimum temperature    : 0.01
+maximum temperature    : 100
+minimum mass fraction  : -2.0
+maximum mass fraction  : 2.0
+
+! Output
+output type           : ensight
+output frequency      : 0.116999!0.09999999999
+dump Q criterion      : .false.
+dump processor decomp : .false.
+dump dilatation       : .true.
+dump schlieren        : .true.

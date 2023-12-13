@@ -1,0 +1,114 @@
+# Processor decomposition ##############################################################
+
+use manual domain decomposition : .false.
+processor decomposition : 2 2 1
+
+# Initialization parameters ############################################################
+
+simulation name : shock tube
+
+! Grid size
+nx : 201
+ny : 16
+nz : 1
+Lx : 1
+Ly : 0.16
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in y : plane
+
+! Shock tube properties
+shock position      : 0.5
+post-shock density  : 1
+post-shock pressure : 1
+pre-shock density   : 0.125
+pre-shock pressure  : 0.1
+
+! Particle properties
+particle distribution         : uniform
+particle diameter             : 4.5779e-04
+particle volume fraction      : 0.2
+particle layer thickness      : 0.05
+particle layer position       : 0.45
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Patch holes and penalties
+default sponge amount             : 0.2
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  left                 SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  leftSponge           SPONGE                 1       1    16     1    -1     1    -1 
+  right                SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  rightSponge          SPONGE                -1      -16   -1     1    -1     1    -1    
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+include viscous terms        : .false.
+Reynolds number              : 1e8
+Prandtl number               : 0.7
+ratio of specific heats      : 1.4
+
+! Chemistry
+equation of state : ideal gas 
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .false.
+time step size        : 5e-4
+cfl                   : 0.5
+number of timesteps   : 99999
+final time            : 0.2
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .true.
+dissipation amount    : .006
+use hybrid dissipation : .false.
+dissipation sensor : ducros
+
+use shock capturing : .true.
+shock capturing coefficient : 1
+
+filter solution : .false.
+filtering scheme: implicit
+filter parameter : 0.49
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 10
+minimum temperature    : 0.01
+maximum temperature    : 10
+minimum mass fraction  : -2.0
+maximum mass fraction  : 2.0
+
+! Output
+output type           : ensight
+output frequency      : 0.19999
+dump dilatation       : .true.
+dump grid norm        : .true.

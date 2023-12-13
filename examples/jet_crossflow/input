@@ -1,0 +1,143 @@
+# Initialization parameters ############################################################
+
+simulation name : jet in crossflow
+
+! Grid size
+nx : 1727
+ny : 259
+nz : 192
+Lx : 43.06197643979
+Ly : 6.35
+Lz : 4.7625
+
+curvilinear domain : .true.
+
+! Periodicity
+periodicity type in z : plane
+
+! Stretch the grid in y
+grid stretching: .true.
+
+! Boundary layer
+free stream velocity : 0.3
+blasius virtual origin : 1.0
+
+! Sandpaper
+include sandpaper      : .true.
+sandpaper location     : 2.2225
+sandpaper width        : 5.08
+sandpaper height       : 0.095
+include sandpaper grit : .true.
+sandpaper grit height  : 0.034
+sandpaper grit width   : 0.042
+number of sandpaper particles : 1000
+
+! Jet parameters
+jet velocity profile : poiseuille
+jet velocity         : 0.0364
+jet position         : 35.56
+jet diameter         : 0.75
+jet shape            : round
+conform grid to jet  : .true.
+
+! Mixture properties
+number of species              : 2
+initial fuel mass fraction     : 1.0
+initial oxidizer mass fraction : 0.233
+
+! Initialization files
+init grid file     : grid
+init solution file : data.init
+
+# Boundary conditions and patches ######################################################
+
+! Patch holes and penalties
+default sponge amount             : 0.2
+default viscous penalty amount    : 0
+bottomWall viscous penalty amount : 2
+bottomWall include hole           : .true.
+bottomWall hole is inverted       : .false.
+bottomWall hole shape             : circle
+bottomWall hole radius            : 0.2413
+bottomWall hole position          : 35.56 0 0
+jetInflow include_hole            : .true.
+jetInflow hole is inverted        : .true.
+jetInflow hole shape              : circle
+jetInflow hole radius             : 0.5
+jetInflow hole position           : 35.56 0 0
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+  top                  SAT_FAR_FIELD         -2       1    -1    -1    -1     1    -1
+  topSponge            SPONGE                -2       1    -1     118  -1     1    -1  
+  inflow               SAT_FAR_FIELD          1       1     1     1    -1     1    -1
+  inflowSponge         SPONGE                 1       1     10    1    -1     1    -1 
+  outflow              SAT_FAR_FIELD         -1      -1    -1     1    -1     1    -1
+  outflowSponge        SPONGE                -1       500  -1     1    -1     1    -1
+  bottomWall           SAT_ISOTHERMAL_WALL    2       1    -1     1     1     1    -1  
+  jetInflow            SAT_FAR_FIELD          2       1    -1     1     1     1    -1
+  ensight              VISUALIZATION          0       1    -1     1     1     1    -1
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 1000
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+Reynolds number : 1000.0
+Prandtl number  : 0.7
+include viscous terms : .true.
+viscosity power law exponent : 0.666
+bulk viscosity ratio         : 0.6
+ratio of specific heats      : 1.4
+
+! Chemistry
+equation of state    : ideal gas mixture
+combustion model     : one step
+Schmidt number       : 0.7 0.7
+active species       : H2 O2
+inert species        : N2
+reference species    : air
+stoichiometric ratio : 8
+heat release         : 0.86
+Zel Dovich           : 6
+Damkohler number     : 500000
+
+! Discretization scheme
+default discretization scheme : SBP 3-6
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .true.
+time step size        : 1.0
+cfl                   : 0.5
+number of timesteps   : 100000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation       : .true.
+composite dissipation : .false.
+dissipation amount    : 0.002
+
+! Solution limits
+enable solution limits : .true.
+minimum density        : 0.01
+maximum density        : 10
+minimum temperature    : 0.01
+maximum temperature    : 10
+minimum mass fraction  : -2.0
+maximum mass fraction  : 2.0
+
+! Output
+output type : ensight
+output frequency : 0.09999
+dump primative variables : .true.

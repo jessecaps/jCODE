@@ -1,0 +1,74 @@
+# Initialization parameters ############################################################
+
+simulation name : scalar convection
+
+! Grid size
+nx : 33
+ny : 33
+Lx : 1
+Ly : 1
+
+curvilinear domain : .false.
+
+! Periodicity
+periodicity type in x : plane
+periodicity type in y : plane
+
+! Scalar
+number of species   : 1
+scalar orientation  : z
+scalar size         : 0.1
+convective velocity : 0.1 0 0
+
+! Initialization files
+init grid file         : grid
+init solution file     : data.init
+
+# Boundary conditions and patches ######################################################
+
+patches : 
+! Name                 Type                  normDir iMin  iMax  jMin  jMax  kMin  kMax
+! -------------------------------------------------------------------------------------
+
+
+# Forward parameters ###################################################################
+
+! Files
+data overwrite         : .true.
+grid file              : grid
+solution file to read  : data.init
+solution file to write : data
+save interval          : 100
+
+! Target state
+use target state      : .true.
+target state file     : data.init
+
+! Thermo-fluid properties
+include viscous terms   : .false.
+ratio of specific heats : 1.4
+
+! Chemistry
+equation of state    : ideal gas
+combustion model     : none
+
+! Discretization scheme
+default discretization scheme : SBP 4-8
+time integration scheme       : RK4
+
+! Time stepping options
+use constant CFL mode : .false.
+time step size        : 0.01
+cfl                   : 0.5
+number of timesteps   : 1000
+report interval       : 1
+
+! Artificial dissipation
+add dissipation : .false.
+
+! Solution limits
+enable solution limits : .false.
+
+! Output
+output type : ensight
+output frequency : 0.19999999
