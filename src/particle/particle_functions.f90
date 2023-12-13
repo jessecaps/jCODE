@@ -411,7 +411,7 @@ subroutine compute_drag_correction(part, density, temperature, viscosity, veloci
 
   ! Model parameters
   real(WP) :: Mcr, CDMcr, zsub, fsub(3), Csub(3), fsup(3), Csup(3), zsup, CDM1,              &
-       CDM175, CDstd, CD1, CD2, CM, GM, HM, JM, fKn, Knp, sDrag, b1, b2,                     &
+       CDM175, CDstd, CD1, CD2, CM, GM, HM, JM, fKn, Knp, sDrag, b1, b2, b3, CD3, Rem,       &
        fsupM1(3), fsupM175(3), fsubM1(3), fsubMcr(3),                                        &
        delt_o, Ao, alpha_o, alpha_hoc, u_rat, T_s_rat, Ma_s, alpha, C2, alpha_inf,           &
        Theta_singh, Re_tilde, Cd_c, Wr, f_low_Kn, s, Cd_FM, a_singh, Br_singh, omega_exp
@@ -714,58 +714,6 @@ subroutine compute_drag_correction(part, density, temperature, viscosity, veloci
 
      dragCorrection = CD * Rep / 24.0_WP
 
-  case (PATEL)
-
-     ! Combine Loth (2021) drag with Tenneti (2011)
-     ! -----------------------------------------------------------------------------
-
-     if (Rep .le. 45.0_WP) then
-        ! Rarefraction-dominated regime
-        Knp = sqrt(0.5_WP * pi * ratioOfSpecificHeats) * Ma / Rep
-        fKn = 1.0_WP / (1.0_WP + Knp*(2.514_WP + 0.8_WP*exp(-0.55_WP/Knp)))
-        CD1 = (1.0_WP + 0.15_WP*Rep**(0.687_WP)) * fKn
-        sDrag = Ma * sqrt(0.5_WP * ratioOfSpecificHeats)
-        if (Ma .le. 1.0_WP) then
-           JM = 2.26_WP - 0.1_WP/Ma + 0.14_WP/Ma**3
-        else
-           JM = 1.6_WP + 0.25_WP/Ma + 0.11_WP/Ma**2 + 0.44_WP/Ma**3
-        end if
-        CD2 = (1.0_WP + 2.0_WP*sDrag**2) * exp(-sDrag**2) / (sDrag**3*sqrt(pi) +             &
-             epsilon(1.0_WP)) + (4.0_WP*sDrag**4 + 4.0_WP*sDrag**2 - 1.0_WP) *               &
-             erf(sDrag) / (2.0_WP*sDrag**4 + epsilon(1.0_WP)) +                              &
-             2.0_WP / (3.0_WP * sDrag + epsilon(1.0_WP)) * sqrt(pi)
-        CD2 = CD2 / (1.0_WP + (CD2/JM - 1.0_WP) * sqrt(Rep/45.0_WP))
-        dragCorrection = CD1 / (1.0_WP + Ma**4) +                                            &
-             Rep / 24.0_WP * Ma**4 * CD2 / (1.0_WP + Ma**4)
-
-     else
-        ! Compression-dominated regime
-        if (Ma .lt. 1.5_WP) then
-           CM = 1.65_WP + 0.65_WP * tanh(4.0_WP*Ma - 3.4_WP)
-        else
-           CM = 2.18_WP - 0.13_WP * tanh(0.9_WP*Ma - 2.7_WP)
-        end if
-        if (Ma .lt. 0.8_WP) then
-           GM = 166.0_WP*Ma**3 + 3.29_WP*Ma**2 - 10.9_WP*Ma + 20.0_WP
-        else
-           GM = 5.0_WP + 40.0_WP*Ma**(-3.0_WP)
-        end if
-
-        if (Ma .lt. 1.0_WP) then
-           HM = 0.0239_WP*Ma**3 + 0.212_WP*Ma**2 - 0.074_WP*Ma + 1.0_WP
-        else
-           HM = 0.93_WP + 1.0_WP / (3.5_WP + Ma**5)
-        end if
-        dragCorrection = (1.0_WP + 0.15_WP * Rep**(0.687_WP))*HM + Rep / 24.0_WP *           &
-             0.42_WP*CM / (1.0_WP+42500.0_WP/Rep**(1.16_WP*CM) + GM/sqrt(Rep))
-     end if
-
-     Rep = Rep * vf
-     b1 = 5.81_WP*vp/vf**3+0.48_WP*vp**(1.0_WP/3.0_WP)/vf**4
-     b2 = vp**3*Rep*(0.95_WP+0.61_WP*vp**3/vf**2)
-
-     dragCorrection = vf * (dragCorrection/vf**3+b1+b2)
-
   case(SINGH)
 
      ! Singh, N., Kroells, M., Li, C., Ching, E., Ihme, M., Hogan, C. J., &
@@ -901,6 +849,67 @@ subroutine compute_drag_correction(part, density, temperature, viscosity, veloci
      ! Convert to drag correction and augment by Sangani
      dragCorrection = CD * Rep / 24.0_WP * (1.0_WP + 2.0_WP * vp) / (1.0_WP - vp)**2
 
+  case(OSNES)
+
+     ! Osnes, A., M. Vartdal, M.  Khalloufi, J. Capecelatro, and S. Balachandar. 
+     ! Comprehensive quasi-steady force correlations for 
+     ! compressible flow through random particle suspensions (2023) 
+     ! International Journal of Multiphase Flow 
+     ! -------------------------------------------------------------------------
+
+     if (Rep .le. 45.0_WP) then
+        ! Rarefraction-dominated regime
+        Knp = sqrt(0.5_WP * pi * ratioOfSpecificHeats) * Ma / Rep
+        fKn = 1.0_WP / (1.0_WP + Knp*(2.514_WP + 0.8_WP*exp(-0.55_WP/Knp)))
+        CD1 = (1.0_WP + 0.15_WP*Rep**(0.687_WP)) * fKn
+        sDrag = Ma * sqrt(0.5_WP * ratioOfSpecificHeats)
+        if (Ma .le. 1.0_WP) then
+           JM = 2.26_WP - 0.1_WP/Ma + 0.14_WP/Ma**3
+        else
+           JM = 1.6_WP + 0.25_WP/Ma + 0.11_WP/Ma**2 + 0.44_WP/Ma**3
+        end if
+        CD2 = (1.0_WP + 2.0_WP*sDrag**2) * exp(-sDrag**2) / (sDrag**3*sqrt(pi) +             &
+             epsilon(1.0_WP)) + (4.0_WP*sDrag**4 + 4.0_WP*sDrag**2 - 1.0_WP) *               &
+             erf(sDrag) / (2.0_WP*sDrag**4 + epsilon(1.0_WP)) +                              &
+             2.0_WP / (3.0_WP * sDrag + epsilon(1.0_WP)) * sqrt(pi)
+        CD2 = CD2 / (1.0_WP + (CD2/JM - 1.0_WP) * sqrt(Rep/45.0_WP))
+        dragCorrection = CD1 / (1.0_WP + Ma**4) +                                            &
+             Rep / 24.0_WP * Ma**4 * CD2 / (1.0_WP + Ma**4)
+        CD3 = dragCorrection * 24.0_WP/Rep
+     else
+        ! Compression-dominated regime
+        if (Ma .lt. 1.5_WP) then
+           CM = 1.65_WP + 0.65_WP * tanh(4.0_WP*Ma - 3.4_WP)
+        else
+           CM = 2.18_WP - 0.13_WP * tanh(0.9_WP*Ma - 2.7_WP)
+        end if
+        if (Ma .lt. 0.8_WP) then
+           GM = 166.0_WP*Ma**3 + 3.29_WP*Ma**2 - 10.9_WP*Ma + 20.0_WP
+        else
+           GM = 5.0_WP + 40.0_WP*Ma**(-3.0_WP)
+        end if
+
+        if (Ma .lt. 1.0_WP) then
+           HM = 0.0239_WP*Ma**3 + 0.212_WP*Ma**2 - 0.074_WP*Ma + 1.0_WP
+        else
+           HM = 0.93_WP + 1.0_WP / (3.5_WP + Ma**5)
+        end if
+        CD3 = 24.0_WP/Rep*(1.0_WP + 0.15_WP * Rep**(0.687_WP))*HM + Rep / 24.0_WP *           &
+             0.42_WP*CM / (1.0_WP+42500.0_WP/Rep**(1.16_WP*CM) + GM/sqrt(Rep))
+     end if
+     vp = min(0.4_WP, vp)
+     CD3 = CD3/(1.0_WP-vp)
+     Rem = (1.0_WP-vp)*Rep
+     b1 = (5.81_WP*vp/(1.0_WP-vp)**2.0_WP+0.48_WP*vp**(1.0_WP/3.0_WP)/(1.0_WP-vp)**3.0_WP)
+     b2 = (1.0_WP-vp)*(vp**3.0_WP*Rem*(0.95_WP+0.61_WP*vp**3.0_WP/(1.0_WP-vp)**2.0_WP))
+
+     b1 = b1*(1.0_WP-vp)
+     b2 = b2*(1.0_WP-vp)
+
+     b3 = min((Ma/0.05_WP)**0.5_WP, 1.0_WP)*                                                  &
+          (5.65_WP*vp-22.0_WP*vp**2.0_WP+23.4_WP*vp**3.0_WP)                                   &
+          *(1.0_WP+tanh((Ma-(0.65_WP-0.24_WP*vp))/0.35_WP))
+     dragCorrection = CD3*Rep/24.0_WP + b1 + b2 + b3*Rep/24.0_WP
 
   end select
 

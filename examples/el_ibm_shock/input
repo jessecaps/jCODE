@@ -120,7 +120,7 @@ particle density             : 2571.4
 particle specific heat       : 0.8375
 two way coupling             : .true.
 particle filter size         : 0.15
-drag model                   : loth
+drag model                   : osnes
 use added mass               : .true.
 use saffman lift             : .false.
 

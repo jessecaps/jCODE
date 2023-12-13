@@ -19,9 +19,9 @@ module particle_solver
        THEO             = 7,                                                                 &
        LOTH             = 8,                                                                 &
        HENDERSON        = 9,                                                                 &
-       PATEL            = 10,                                                                &
-       SINGH            = 11,                                                                &
-       KC               = 12
+       SINGH            = 10,                                                                &
+       KC               = 11,                                                                &
+       OSNES            = 12
   ! Collision parameters
   real(WP) :: collisionTime, coefficientOfRestitution, coefficientOfFriction
   logical :: particleWall(3,2), interParticleCollisions
@@ -132,9 +132,9 @@ subroutine particle_solver_setup
 
      dragModel = LOTH
 
-  case ('patel', 'Patel')
+  case ('osnes', 'Osnes')
 
-     dragModel = PATEL
+     dragModel = OSNES
      
      
   case ('basset', 'Basset')
