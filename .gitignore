@@ -10,6 +10,9 @@
 *.out
 *.toc
 *.synctex.gz
+bin/*
+obj/*
+lib/*
 
 # Edited Makefile.in #
 ######################
