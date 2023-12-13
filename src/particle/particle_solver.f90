@@ -904,7 +904,7 @@ subroutine particle_rhs(part, dxdt, dudt, dwdt, dTdt, dmdt)
 !!$  end if
 
   ! Transfer momentum to the fluid phase
-  momentumExchange = -dragForce - liftForce
+  momentumExchange = -dragForce - liftForce - addedMass
   heatExchange = -dTdt
   massExchange = -dmdt
   call transfer_interphase_exchange(part, momentumExchange, heatExchange, massExchange,      &
