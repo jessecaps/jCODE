@@ -752,7 +752,7 @@ subroutine particle_rhs(part, dxdt, dudt, dwdt, dTdt, dmdt)
   ! Drag contribution
   call compute_drag_correction(part, density, temperature, viscosity, velocity, vf,          &
        dragCorrection)
-  dragForce(1:nDimensions) = dragCorrection * responseTimeInverse * vf *                     &
+  dragForce(1:nDimensions) = dragCorrection * responseTimeInverse *                          &
        (velocity(1:nDimensions) - part%velocity(1:nDimensions))
 
   ! Store minimum drag time for stability (based on max eigenvalue)
