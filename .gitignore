@@ -13,13 +13,19 @@
 bin/
 ensight-3D
 monitor
-!src/monitor/
 grid
-!src/grid/
 data.*
 part.*
 ibm.*
 levelset.*
+part
+data
+ibm
+
+# Don't ignore these files
+!src/grid/
+!src/monitor/
+!/src/ibm/
 
 # Edited Makefile.in #
 ######################
