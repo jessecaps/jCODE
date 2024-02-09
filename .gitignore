@@ -13,8 +13,9 @@
 bin/
 ensight-3D
 monitor
+!src/monitor/
 grid
-!grid/
+!src/grid/
 data.*
 part.*
 ibm.*
