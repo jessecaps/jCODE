@@ -422,6 +422,9 @@ subroutine ibm_compute_levelset
         ! Initialize distance       
         distance = baselineLevelset(i,1)
 
+        ! Reset object index array
+        objectIndex(i) =  0
+
         ! Loop over all particles
         do j = 1, nObjectsLocal
 
@@ -440,7 +443,7 @@ subroutine ibm_compute_levelset
            distance = min(distance, sqrt(sum(dist**2)) - radius)
 
            ! Store object index
-           if (sqrt(sum(dist**2)) .le. radius) objectIndex(i) = n
+           if (sqrt(sum(dist**2)) .le. radius + 2.0_WP * minGridSpacing) objectIndex(i) = n
         end do
 
         ! Store min distance
@@ -537,7 +540,7 @@ subroutine ibm_cbvp_source(source)
      rho_ = conservedVariables(i, 1)
 
      ! Get velocity of associated object
-     if (ibm_move) then
+     if (ibm_move .and. levelset(i, 1).lt.0.0_WP) then
         n = objectIndex(i)
         objectVelocity = object(n)%velocity(1:nDimensions)
         ibmVelocity(i,:) = objectVelocity

@@ -128,6 +128,10 @@ subroutine ibm_solver_rhs
 
      ! Torque
      object(i)%dwdt(1:3) = (object(i)%hTorque(1:3) + object(i)%cTorque(1:3)) / momentOfInertia
+
+     ! Zero out the forces
+     object(i)%cForce = 0.0_WP
+     object(i)%cTorque = 0.0_WP
      
   end do
 
@@ -165,12 +169,6 @@ subroutine compute_ibm_collisions
   if (.not. useIBM) return
   if (.not. ibm_collisions) return
   if (ibmType.ne.IBM_PARTICLE) return
-
-  ! Zero out the forces
-  do ip = 1, nObjects
-     object(ip)%cForce = 0.0_WP
-     object(ip)%cTorque = 0.0_WP
-  end do
 
   ! Set collision time to be 20x the simulation timestep
   collisionTime = 20.0_WP * timestepSize
@@ -374,11 +372,11 @@ subroutine compute_ibm_collisions
            object(ip)%cTorque(3) = object(ip)%cTorque(3) + 0.5_WP * (d1 * n12(1) *           &
                 tangentialForce(2) - d1 * n12(2) * tangentialForce(1)) / mass1
 
-           object(jp)%cTorque(1) = object(ip)%cTorque(1) - 0.5_WP * (d1 * n12(2) *           &
+           object(jp)%cTorque(1) = object(jp)%cTorque(1) - 0.5_WP * (d1 * n12(2) *           &
                 tangentialForce(3) - d1 * n12(3) * tangentialForce(2)) / mass2
-           object(jp)%cTorque(2) = object(ip)%cTorque(2) - 0.5_WP * (d1 * n12(3) *           &
+           object(jp)%cTorque(2) = object(jp)%cTorque(2) - 0.5_WP * (d1 * n12(3) *           &
                 tangentialForce(1) - d1 * n12(1) * tangentialForce(3)) / mass2
-           object(jp)%cTorque(3) = object(ip)%cTorque(3) - 0.5_WP * (d1 * n12(1) *           &
+           object(jp)%cTorque(3) = object(jp)%cTorque(3) - 0.5_WP * (d1 * n12(1) *           &
                 tangentialForce(2) - d1 * n12(2) * tangentialForce(1)) / mass2
         end if
      end do
@@ -388,6 +386,101 @@ subroutine compute_ibm_collisions
   return
   
 end subroutine compute_ibm_collisions
+
+
+! ============================================================ !
+! Compute collision force between Lagrangian particles and IBM !
+! ============================================================ !
+subroutine compute_ibm_particle_collisions(useFriction, colTime, coefRest, mu, gridIndex,    &
+     delta, pos1, vel1, omega1, d1, mass1, n12, force, torque, ncol)
+
+  ! Internal modules
+  use ibm_solver
+
+  ! External modules
+  use simulation_flags
+  use math
+  use geometry
+  use grid
+  use grid_functions
+  use time_info, only : timestepSize
+
+  implicit none
+
+  ! Arguments
+  logical, intent(in) :: useFriction
+  integer, dimension(3), intent(in) :: gridIndex
+  real(WP), intent(in) :: colTime, coefRest, mu, delta, d1, mass1
+  real(WP), dimension(3), intent(in) :: pos1, vel1, omega1, n12
+  real(WP), dimension(3), intent(inout) :: force, torque
+  integer, intent(inout) :: ncol
+
+  ! Local variables
+  integer :: jp
+  real(WP) :: d2, mass2, rnv, effectiveMass, springForce, damper, rtv
+  real(WP), dimension(3) :: vel2, omega2, v12, v12n, t12, normalForce, tangentialForce
+
+  ! IBM parameters
+  if (ibmType.eq.IBM_PARTICLE) then
+     jp = objectIndex(grid_index(gridIndex(1), gridIndex(2), gridIndex(3)))
+     !if (jp.le.0) call die('compute_ibm_particle_collisions: problem localizing IBM particle')
+     if (jp.le.0) then
+        print *, jp,delta/minGridSpacing,gridIndex(1), gridIndex(2), gridIndex(3),pos1
+        call die('compute_ibm_particle_collisions: problem localizing IBM particle')
+     end if
+     vel2   = object(jp)%velocity
+     omega2 = object(jp)%angularVelocity
+     d2     = (2.0_WP * real(nDimensions, WP) * object(jp)%volume / pi)                      &
+          ** (1.0_WP / real(nDimensions, WP))
+     mass2  = ibmDensity * object(jp)%volume
+     effectiveMass = mass1 * mass2 / (mass1 + mass2)
+  else
+     vel2   = 0.0_WP
+     omega2 = 0.0_WP
+     d2     = 0.0_WP
+     effectiveMass = mass1
+  end if
+ 
+  ! Normal collision
+  v12 = vel1 - vel2
+  rnv = sum(v12 * n12)
+  v12n = rnv * n12
+  springForce = effectiveMass / colTime**2 * (pi**2 + log(coefRest)**2)
+  damper = -2.0_WP * log(coefRest) * effectiveMass / colTime
+  normalForce  = -springForce * delta * n12 - damper * v12n
+  ! Tangential collision
+  t12 = v12 - v12n + cross_product(0.5_WP * (d1*omega1 + d2*omega2), n12)
+  rtv = sqrt(sum(t12 * t12))
+  tangentialForce = 0.0_WP
+  if (useFriction .and. rtv.gt.0.0_WP) tangentialForce = -mu *                               &
+       sqrt(sum(normalForce * normalForce)) * t12 / rtv
+  ! Calculate acceleration due to collisions
+  force(1:nDimensions) = force(1:nDimensions) + ( normalForce(1:nDimensions) +               &
+       tangentialForce(1:nDimensions) ) / mass1
+  ! Calculate collision torque
+  torque(1) = torque(1) + 0.5_WP * (d1 * n12(2) * tangentialForce(3) - d1 * n12(3) *         &
+       tangentialForce(2)) / mass1
+  torque(2) = torque(2) + 0.5_WP * (d1 * n12(3) * tangentialForce(1) - d1 * n12(1) *         &
+       tangentialForce(3)) / mass1
+  torque(3) = torque(3) + 0.5_WP * (d1 * n12(1) * tangentialForce(2) - d1 * n12(2) *         &
+       tangentialForce(1)) / mass1
+  ! Send force and torque to IBM
+  if (ibmType.eq.IBM_PARTICLE) then
+     object(jp)%cForce(1:nDimensions) = object(jp)%cForce(1:nDimensions) -                   &
+          (normalForce(1:nDimensions) + tangentialForce(1:nDimensions))
+     object(jp)%cTorque(1) = object(jp)%cTorque(1) - 0.5_WP * (d1 * n12(2) *                 &
+          tangentialForce(3) - d1 * n12(3) * tangentialForce(2)) / mass2
+     object(jp)%cTorque(2) = object(jp)%cTorque(2) - 0.5_WP * (d1 * n12(3) *                 &
+          tangentialForce(1) - d1 * n12(1) * tangentialForce(3)) / mass2
+     object(jp)%cTorque(3) = object(jp)%cTorque(3) - 0.5_WP * (d1 * n12(1) *                 &
+          tangentialForce(2) - d1 * n12(2) * tangentialForce(1)) / mass2
+  end if
+  
+  ! Update collision counter
+  ncol=ncol+1
+
+  return
+end subroutine compute_ibm_particle_collisions
 
 
 ! ========================================= !
