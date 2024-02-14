@@ -423,11 +423,7 @@ subroutine compute_ibm_particle_collisions(useFriction, colTime, coefRest, mu, g
   ! IBM parameters
   if (ibmType.eq.IBM_PARTICLE) then
      jp = objectIndex(grid_index(gridIndex(1), gridIndex(2), gridIndex(3)))
-     !if (jp.le.0) call die('compute_ibm_particle_collisions: problem localizing IBM particle')
-     if (jp.le.0) then
-        print *, jp,delta/minGridSpacing,gridIndex(1), gridIndex(2), gridIndex(3),pos1
-        call die('compute_ibm_particle_collisions: problem localizing IBM particle')
-     end if
+     if (jp.le.0) call die('compute_ibm_particle_collisions: problem localizing IBM particle')
      vel2   = object(jp)%velocity
      omega2 = object(jp)%angularVelocity
      d2     = (2.0_WP * real(nDimensions, WP) * object(jp)%volume / pi)                      &
