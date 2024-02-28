@@ -364,9 +364,9 @@ subroutine el_ibm_particles
   implicit none
 
   ! Local variables
-  integer :: i, j, k, particleOffset
+  integer :: i, j, k, particleOffset, ierror
   real(WP) :: volume, volumeFraction, particleVolume, volumeFactor, sumParticleVolume, rand, &
-       r, distance(3), dp, dpBig, Tp
+       r, distance(3), dp, dpBig, Tp, myLength, xStart, lengthProc(nprocs)
   character(len = str_medium) :: filename, particleDistribution
   logical :: success
 
@@ -399,6 +399,14 @@ subroutine el_ibm_particles
 
   ! Distribute particles to processors
   call pigeon_hole(nParticlesGlobal, nProcs, iRank, particleOffset, nParticles)
+
+  ! Determine local extent to distribute particles
+    myLength = curtainThickness * real(nParticles, WP) / real(nParticlesGlobal, WP)
+  call MPI_Allgather(myLength, 1, MPI_REAL_WP, lengthProc, 1, MPI_REAL_WP, comm, ierror)
+  xStart = curtainPosition
+  do i = 1, iRank
+     xStart = xStart + lengthProc(i)
+  end do
 
   ! Allocate the particle vector
   if (allocated(particles)) deallocate(particles)
@@ -438,53 +446,75 @@ subroutine el_ibm_particles
   ! Compute effective volume fraction
   call parallel_sum(sumParticleVolume)
   volumeFraction = sumParticleVolume / volume
-
+  
   ! Distribute the particles
   i=1
   do while (i.le.nParticles)
 
      ! Give the particle a random position
      if (nx .gt. 1) then
-           call random_number(rand)
-           particles(i)%position(1) = 0.5_WP *dp + curtainPosition +                         &
-                (curtainThickness - 0.5_WP * dp) * rand
-        end if
-        if (ny .gt. 1) then
-           call random_number(rand)
-           particles(i)%position(2) = Ly * (1.0_WP * rand - 0.5_WP) 
-        end if
-        if (nz .gt. 1) then
-           call random_number(rand)
-           particles(i)%position(3) = Lz * (1.0_WP * rand - 0.5_WP) 
-        end if
+        call random_number(rand)
+        particles(i)%position(1) = xStart + 0.5_WP * dp + (myLength - dp) * rand
+     end if
+     if (ny .gt. 1) then
+        call random_number(rand)
+        particles(i)%position(2) = Ly * (1.0_WP * rand - 0.5_WP) 
+     end if
+     if (nz .gt. 1) then
+        call random_number(rand)
+        particles(i)%position(3) = Lz * (1.0_WP * rand - 0.5_WP) 
+     end if
 
-        ! Prevent overlap with big particles
-        success = .true.
-        part2: do j = 1, nObjects
-           ! Compute separation distance (account for periodicity)
-           dpBig = (2.0_WP * real(nDimensions, WP) * object(j)%volume / pi)               &
-                ** (1.0_WP / real(nDimensions, WP))
-           distance = 0.0_WP
+     ! Prevent overlap with big particles
+     success = .true.
+     part2: do j = 1, nObjects
+        ! Compute separation distance (account for periodicity)
+        dpBig = (2.0_WP * real(nDimensions, WP) * object(j)%volume / pi)                    &
+             ** (1.0_WP / real(nDimensions, WP))
+        distance = 0.0_WP
+        do k = 1, nDimensions
+           distance(k) = abs(particles(i)%position(k) - object(j)%position(k))
+           if (isPeriodic(k)) then
+              distance(k) = min(distance(k), periodicLength(k) -                             &
+                   abs(particles(i)%position(k) - object(j)%position(k)))
+           end if
+        end do
+        r = sqrt(sum(distance**2))
+        if (r.le.0.55_WP*(dp+dpBig)) then
+           i=i-1
+           success = .false.
+           exit part2
+        end if
+     end do part2
+
+     ! Prevent inter-particle overlap
+     if (success) then
+        part3: do j=1, i-1
+           distance=0.0_WP
+           ! Compute separation distance 
            do k = 1, nDimensions
-              distance(k) = abs(particles(i)%position(k) - object(j)%position(k))
+              distance(k) = abs(particles(i)%position(k) - particles(j)%position(k))
               if (isPeriodic(k)) then
-                 distance(k) = min(distance(k), periodicLength(k) -                       &
-                      abs(particles(i)%position(k) - object(j)%position(k)))
+                 distance(k) = min(distance(k), periodicLength(k) -                          &
+                      abs(particles(i)%position(k) - particles(j)%position(k)))
               end if
            end do
            r = sqrt(sum(distance**2))
-           if (r.le.0.55_WP*(dp+dpBig)) then
+           if (r.le.0.55_WP*2.0_WP*dp) then
               i=i-1
               success = .false.
-              exit part2
+              exit part3
            end if
-        end do part2
-        i=i+1
+        end do part3
+     end if
 
-        if (success .and. modulo(i,1000).eq.0)                                               &
-             print *, real(i,SP)/real(nParticles,SP)*100.0_SP,'% (small)'
+     ! Update counter
+     i=i+1
 
-     end do
+     if (iRank .eq. iRoot .and. success .and. modulo(i,1000).eq.0)                            &
+          print *, real(i,SP)/real(nParticles,SP)*100.0_SP,'% (small)'
+
+  end do
 
      ! Output stuff to the screen.
      if (iRank .eq. iRoot) then
