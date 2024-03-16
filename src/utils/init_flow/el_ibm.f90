@@ -344,7 +344,7 @@ subroutine el_ibm_objects
         object(i)%remove = .false.
      end do
   end if
-  call MPI_BCAST(object, nObjects, MPI_OBJECT, iRoot, MPI_COMM_WORLD, ierr)
+  if (nObjects .gt. 0) call MPI_BCAST(object, nObjects, MPI_OBJECT, iRoot, MPI_COMM_WORLD, ierr)
 
   return
 end subroutine el_ibm_objects
