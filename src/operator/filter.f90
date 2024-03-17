@@ -101,7 +101,7 @@ subroutine filter_setup
   ! Decide if filter is used
   call parser_read('filter solution', useFilter, .false.)
   if (useFilter) allocate(filterStencil(nDimensions))
-  if (useShockCapturing .or. useIBM) allocate(gaussianFilter(nDimensions))
+  if (useShockCapturing .or. useIBM .or. useParticles) allocate(gaussianFilter(nDimensions))
   if (.not.allocated(filterStencil) .and. .not.allocated(gaussianFilter)) return
 
   ! Setup the filter to be used on the solution

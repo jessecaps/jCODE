@@ -878,7 +878,7 @@ contains
                    A(i,k,j,-1) = 0.0_WP
                    A(i,k,j, 0) = 1.0_WP + 1.0_WP * diffusionAmount * dxi * dxiR
                    A(i,k,j,+1) = - diffusionAmount * dxi * dxiR
-                else if (j.eq.globalGridSize(2) .and. nGhost(2).eq.0) then
+                else if (j.eq.globalGridSize(dir) .and. nGhost(2).eq.0) then
                    dxi = 1.0_WP /  dx(ii,jj,kk,1)
                    dxiL= 2.0_WP / (dx(ii,jj,kk,1) + dx(ii,jj-1,kk,1))
                    A(i,k,j,-1) = - diffusionAmount * dxi * dxiL
@@ -984,7 +984,7 @@ contains
                    A(i,j,k,-1) = 0.0_WP
                    A(i,j,k, 0) = 1.0_WP + 1.0_WP * diffusionAmount * dxi * dxiR
                    A(i,j,k,+1) = - diffusionAmount * dxi * dxiR
-                else if (k.eq.globalGridsize(3) .and. nGhost(2).eq.0) then
+                else if (k.eq.globalGridsize(dir) .and. nGhost(2).eq.0) then
                    dxi = 1.0_WP /  dx(ii,jj,kk,1)
                    dxiL= 2.0_WP / (dx(ii,jj,kk,1) + dx(ii,jj,kk-1,1))
                    A(i,j,k,-1) = - diffusionAmount * dxi * dxiL

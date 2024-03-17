@@ -526,14 +526,21 @@ contains
   subroutine filter_extrapolated_field(f)
 
     ! External modules
-    use grid_functions, only : implicit_diffusion
+    !use grid_functions, only : implicit_diffusion
+    use filter
 
     implicit none
 
     ! Arguments
     real(WP), intent(inout) :: f(:,:)
 
-    if (diffusionAmount .gt. 0.0_WP) call implicit_diffusion(f, diffusionAmount)
+    ! Local variables
+    integer :: i
+
+    !if (diffusionAmount .gt. 0.0_WP) call implicit_diffusion(f, diffusionAmount)
+    do i = 1, nDimensions
+       call gaussian_filter_apply(i, f)
+    end do
 
     return
   end subroutine filter_extrapolated_field
