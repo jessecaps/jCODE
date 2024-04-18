@@ -443,7 +443,7 @@ subroutine ibm_compute_levelset
            distance = min(distance, sqrt(sum(dist**2)) - radius)
 
            ! Store object index
-           if (sqrt(sum(dist**2)) .le. radius + 2.0_WP * minGridSpacing) objectIndex(i) = n
+           if (sqrt(sum(dist**2)) .le. radius + 3.0_WP * minGridSpacing) objectIndex(i) = n
         end do
 
         ! Store min distance
