@@ -45,9 +45,7 @@ textsize=tiny,textwidth=0.8in]{todonotes}
 \newcommand{\jcode}{\code{jCODE}~}
 \newcommand{\inp}{\code{input}~}
 \newcommand{\rootdir}{\code{\MakeLowercase{\jcode}}}
-\newcommand{\bitbucket}{\url{bitbucket.org}}
-%\newcommand{\bitbucketTeam}{\texttt{xpacc-dev}}
-%\newcommand{\teamEmail}{\url{xpacc-dev@listserv.illinois.edu}}
+\newcommand{\github}{\url{https://github.com/jessecaps/jCODE}}
 \newcommand{\binary}{\code{jcode}}
 \newcommand{\alert}[1]{{\color{red}#1}}
 \def \gxy{\mathcal{G}\!\left( | \bm{x}-\bm{y} |\right)}
@@ -261,19 +259,7 @@ with $\delta\mathcal{J}$ now directly related to $\delta \bm{\theta}$, independe
 %This section outlines all the steps required to acquire, compile, and run the code: obtaining the source code (Section \ref{sec:source}, installing and compiling the software (Section \ref{sec:compile}).
 
 \subsection{Obtaining the source code \label{sec:source}}
-The code is currently managed via a Git repository stored on \bitbucket. To obtain the source code, you must first become a member of Bitbucket and request access to the $\jcode$ repository by sending an e-mail to \url{jcaps@umich.edu}. In the email provide your name, institution, and general purpose for using the code. Once you have access, you should create a branch by clicking `\textit{create branch}' found at the top-left corner of this page. Follow the prompts to create a branch stemming from `main' and choose an appropriate name. 
-
-Next, clone your branch to your local machine. This requires that you download Git. From the terminal window create a new directory called \rootdir then change into this directory and type:
-
-\vspace{1em}
-\begin{tikzpicture}
-\node[draw, fill = gray!10,text width=0.9\textwidth] at (0,0) {\code{git clone https://yourBitbucketName@bitbucket.org/jcaps/jcode.git -b $<$branch name$>$}};
-\end{tikzpicture}
-\vspace{1em}\\
-%\\\\
-%\noindent\code{git clone https://yourBitbucketName@bitbucket.org/jcaps/jcode.git -b $<$branch name$>$}
-%\\\\
-Note: Mac users have an alternative to using Git from the command line. There exists free software called SourceTree, a graphical user interface (GUI) integrated with Bitbucket. For users opting to use SourceTree, click `\textit{clone}' at the top-left of the main menu in SourceTree. 
+The code is currently managed via a Git repository stored on \github. It is freely available online. It is advised to create a fork of the main branch and work off of that, or simply download a copy of the source code to your local machine.
 
 Once you have access to the source code, you will find that \jcode contains several directories. Their contents and a brief description are outlined in Fig.~\ref{fig:folders}.
 
