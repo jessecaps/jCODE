@@ -131,6 +131,12 @@ contains
        call el_ibm_objects
        call el_ibm_particles
 
+    case ('el ibm scalar')
+       call el_ibm_scalar_grid
+       call el_ibm_scalar_data
+       call el_ibm_scalar_objects
+       call el_ibm_scalar_particles
+
     case ('erosion')
        call erosion_grid
        call erosion_data

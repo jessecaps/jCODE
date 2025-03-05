@@ -28,7 +28,7 @@ contains
   ! Interpolation routine used for ghost point method
   ! -------------------------------------------------
   subroutine interpolate_image_point(ghostIndex, imageIndex, imagePoint, T_IP, P_IP, U_IP,   &
-       flag)
+       Y_IP, flag)
 
     ! External modules
     use geometry
@@ -40,7 +40,7 @@ contains
     ! Arguments
     integer, intent(in) :: ghostIndex(3), imageIndex(3)
     real(WP), intent(in) :: imagePoint(3)
-    real(WP), intent(out) :: T_IP, P_IP, U_IP(3)
+    real(WP), intent(out) :: T_IP, P_IP, U_IP(3), Y_IP(nSpecies)
     logical, intent(out) :: flag
 
     ! Local variables
@@ -155,6 +155,10 @@ contains
        do n = 1, nDimensions
           U_IP(n) = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1) *                                 &
                ghostVelocity(i1:i2, j1:j2, 1, n))
+       end do
+       do n = 1, nSpecies
+          Y_IP(n) = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1) *                                 &
+               ghostMassFraction(i1:i2, j1:j2, 1, n))
        end do
 
     case (3)
@@ -276,13 +280,17 @@ contains
        end if
 
        ! Interpolate fluid quantities
-       T_IP = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1:k2-k1+1) *                             &
+       T_IP = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1:k2-k1+1) *                               &
             ghostTemperature(i1:i2, j1:j2, k1:k2, 1))
        P_IP = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1:k2-k1+1) *                               &
             ghostPressure(i1:i2, j1:j2, k1:k2, 1))
        do n = 1, nDimensions
           U_IP(n) = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1:k2-k1+1) *                         &
                ghostVelocity(i1:i2, j1:j2, k1:k2, n))
+       end do
+       do n = 1, nSpecies
+          Y_IP(n) = sum(interpCoeff(1:i2-i1+1,1:j2-j1+1,1:k2-k1+1) *                         &
+               ghostMassFraction(i1:i2, j1:j2, k1:k2, n))
        end do
 
     end select
@@ -827,6 +835,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
   use parallel
   use math
   use simulation_flags
+  use solver_options
   use geometry
   use grid
   use grid_functions
@@ -842,8 +851,8 @@ subroutine ibm_ghost_point_correct_state(stateVector)
 
   ! Local variables
   integer :: i, j, n
-  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog,                            &
-       objectVelocity(nDimensions), r(3), omegaR(3), kappa
+  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog, Yg(nSpecies), Y_IP(nSpecies),
+       objectVelocity(nDimensions), r(3), omegaR(3), kappa, Y_IP(nSpecies)
   logical :: flag
 
   ! Return if not used
@@ -882,7 +891,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
 
      ! Interpolate to image point
      call interpolate_image_point(ghostPoint(j)%ghostIndex, ghostPoint(j)%imageIndex,        &
-          ghostPoint(j)%imagePoint, T_IP, P_IP, U_IP, flag)
+          ghostPoint(j)%imagePoint, T_IP, P_IP, U_IP, Y_IP, flag)
 
      ! Velocity of this object
      if (ibm_move) then
@@ -897,6 +906,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
         Ug(1:nDimensions) = objectVelocity! U_IP(1:nDimensions)
         Tg = T_IP
         Pg = P_IP
+        if (nSpecies .gt. 0) Yg = Y_IP
      else
         ! Velocity treatment
         Ug(1:nDimensions) = objectVelocity!2.0_WP * objectVelocity - U_IP(1:nDimensions)
@@ -907,7 +917,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
         else
            Tg = T_IP
         end if
-        
+
         ! Pressure treatment
         if (ibm_move) then
            n = objectIndex(i)
@@ -917,6 +927,9 @@ subroutine ibm_ghost_point_correct_state(stateVector)
         else
            Pg = P_IP
         end if
+
+        ! Scalar treatment
+        if (nSpecies .gt. 0) Yg = Y_IP
      end if
 
      ! Use ideal gas law to get density at the ghost point
@@ -927,6 +940,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
      stateVector(i, 2:nDimensions+1) = stateVector(i, 1) * Ug(1:nDimensions)
      stateVector(i, nDimensions+2) = Pg / (ratioOfSpecificHeats - 1.0_WP) +                  &
           0.5_WP * sum(stateVector(i, 2:nDimensions+1)**2) / stateVector(i, 1)
+     if (nSpecies .gt. 0) stateVector(i, nDimensions+3:nDimensions+2+nSpecies) = Yg
 
      ! Correct for two-way coupling
      if (twoWayCoupling) then
