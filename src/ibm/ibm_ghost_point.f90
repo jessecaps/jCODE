@@ -713,8 +713,8 @@ subroutine ibm_ghost_point_source(source)
 
   ! Local variables
   integer :: i, j, n
-  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog, Eg,                        &
-       objectVelocity(nDimensions), r(3), omegaR(3), dti
+  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Y_IP(nSpecies), Ug(3), Tg, Pg, rhog, Eg,        &
+        Yg(nSpecies), objectVelocity(nDimensions), r(3), omegaR(3), dti
   logical :: flag, isGhost(nGridPoints)
 
   ! Return of not used
@@ -750,7 +750,7 @@ subroutine ibm_ghost_point_source(source)
 
      ! Interpolate to image point
      call interpolate_image_point(ghostPoint(j)%ghostIndex, ghostPoint(j)%imageIndex,        &
-          ghostPoint(j)%imagePoint, T_IP, P_IP, U_IP, flag)
+          ghostPoint(j)%imagePoint, T_IP, P_IP, U_IP, Y_IP, flag)
 
      ! Velocity of this object
      if (ibm_move) then
@@ -852,7 +852,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
   ! Local variables
   integer :: i, j, n
   real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog, Yg(nSpecies), Y_IP(nSpecies),
-       objectVelocity(nDimensions), r(3), omegaR(3), kappa, Y_IP(nSpecies)
+       objectVelocity(nDimensions), r(3), omegaR(3), kappa
   logical :: flag
 
   ! Return if not used
