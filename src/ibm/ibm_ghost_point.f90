@@ -851,7 +851,7 @@ subroutine ibm_ghost_point_correct_state(stateVector)
 
   ! Local variables
   integer :: i, j, n
-  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog, Yg(nSpecies), Y_IP(nSpecies),
+  real(WP) :: T_IP, P_IP, U_IP(3), Un_IP(3), Ug(3), Tg, Pg, rhog, Yg(nSpecies), Y_IP(nSpecies),&
        objectVelocity(nDimensions), r(3), omegaR(3), kappa
   logical :: flag
 
