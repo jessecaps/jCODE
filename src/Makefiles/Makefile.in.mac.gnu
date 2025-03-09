@@ -1,4 +1,5 @@
 # Directories
+%.o: %.mod
 HOMEDIR = $(shell pwd | sed -e 's/\/src.*//')
 LIBDIR  = $(HOMEDIR)/lib
 MODDIR  = $(HOMEDIR)/mod
@@ -17,7 +18,7 @@ RL  = ranlib
 
 # Compiler flags
 CFLAGS   = 
-F90FLAGS = -std=gnu -ffree-line-length-0 -cpp
+F90FLAGS = -std=gnu -ffree-line-length-0 -cpp -fallow-argument-mismatch $(OPTIONS)
 F77FLAGS = -std=legacy
 LDFLAGS  = #-lSystem -lSystemStubs
 INCFLAGS = -I$(MODDIR)
