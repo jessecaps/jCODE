@@ -2052,6 +2052,30 @@ In addition, two directories have been created
 \item \code{ensight-3D}: contains files used to visualize the flow field
 \end{itemize}
 
+\subsubsection*{Restart}
+The simulation can be restarted from the most recent solution files written. If \code{data overwrite} is set to \code{true}, the \code{solution file to write} will be overwritten periodically based on the entry of \code{output frequency}. Upon restart, a new monitor directory will be created. Thus, it is advised to rename \code{monitor} to something like \code{monitor1}. The EnSight output will be appended, so there is no need to rename \code{ensight}. Simply update:
+
+\vskip\baselineskip
+\noindent
+\begin{minipage}{0.55\textwidth}
+\begin{verbatim}
+solution file to read  : data
+solution file to write : data2
+\end{verbatim}
+\end{minipage}
+\vskip\baselineskip
+
+\noindent Similarly, if particle (or IBM) files were written, update the input file accordingly:
+
+\vskip\baselineskip
+\noindent
+\begin{minipage}{0.55\textwidth}
+\begin{verbatim}
+particle file to read  : part
+particle file to write : part2
+\end{verbatim}
+\end{minipage}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
