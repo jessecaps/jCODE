@@ -24,7 +24,7 @@ LDFLAGS  = #-lSystem -lSystemStubs
 INCFLAGS = -I$(MODDIR)
 MODFLAGS = -J $(MODDIR)
 DBGFLAGS = -O0 -fbacktrace -Wall -Wextra -Waliasing -Wno-unused-dummy-argument -Wno-unused-parameter -ffree-line-length-none -fall-intrinsics -fcheck=all -g
-OPTFLAGS = -O3 -ftree-vectorize -ffast-math -funroll-loops -fomit-frame-pointer -pipe
+OPTFLAGS = -O3 -ftree-vectorize -ffast-math -funroll-loops -fomit-frame-pointer #-pipe #-fopenmp
 
 # Installation script
 INSTDIR = $(HOME)/bin
