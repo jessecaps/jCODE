@@ -940,8 +940,8 @@ subroutine ibm_ghost_point_correct_state(stateVector)
      stateVector(i, 2:nDimensions+1) = stateVector(i, 1) * Ug(1:nDimensions)
      stateVector(i, nDimensions+2) = Pg / (ratioOfSpecificHeats - 1.0_WP) +                  &
           0.5_WP * sum(stateVector(i, 2:nDimensions+1)**2) / stateVector(i, 1)
-     if (nSpecies .gt. 0) stateVector(i, nDimensions+3:nDimensions+2+nSpecies) =             *
-     stateVector(i, 1) * Yg
+     if (nSpecies .gt. 0) stateVector(i, nDimensions+3:nDimensions+2+nSpecies) =             &
+          stateVector(i, 1) * Yg
 
      ! Correct for two-way coupling
      if (twoWayCoupling) then
