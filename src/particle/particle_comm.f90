@@ -279,6 +279,10 @@ contains
   ! Check if a particle left the domain
   ! -----------------------------------
   subroutine check_particle_bounds(part)
+    
+    ! External modules
+    use grid_functions, only : grid_index
+    use grid_levelset, only : levelset
 
     implicit none
 
@@ -326,6 +330,11 @@ contains
        end if
 
     end select
+
+    if (allocated(levelset)) then
+       if (levelset(grid_index(part%gridIndex(1), part%gridIndex(2), part%gridIndex(3)), 1)  &
+            .lt. 0.5_WP * part%diameter) part%stop = 1
+    end if
 
     return
   end subroutine check_particle_bounds

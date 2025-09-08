@@ -906,7 +906,7 @@ subroutine compute_drag_correction(part, density, temperature, viscosity, veloci
      b1 = b1*(1.0_WP-vp)
      b2 = b2*(1.0_WP-vp)
 
-     b3 = min((Ma/0.05_WP)**0.5_WP, 1.0_WP)*                                                  &
+     b3 = min(sqrt(20.0_WP*Ma), 1.0_WP)*                                                       &
           (5.65_WP*vp-22.0_WP*vp**2.0_WP+23.4_WP*vp**3.0_WP)                                   &
           *(1.0_WP+tanh((Ma-(0.65_WP-0.24_WP*vp))/0.35_WP))
      dragCorrection = CD3*Rep/24.0_WP + b1 + b2 + b3*Rep/24.0_WP

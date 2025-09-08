@@ -700,11 +700,11 @@ subroutine particle_rhs(part, dxdt, dudt, dwdt, dTdt, dmdt)
 
   ! Non-dimensional numbers
   Rep = density * part%diameter * relativeVelocity / viscosity
-  Rep = Rep + epsilon(1.0_WP)
+  !Rep = Rep + epsilon(1.0_WP)
   Pr = 1.0_WP / prandtlNumberInverse
   soundSpeed = sqrt((ratioOfSpecificHeats-1.0_WP) * temperature)
   Ma = relativeVelocity / soundSpeed
-  Kn = sqrt(0.5_WP * ratioOfSpecificHeats * pi) * Ma / Rep
+  Kn = sqrt(0.5_WP * ratioOfSpecificHeats * pi) * Ma / (Rep + epsilon(1.0_WP))
 
   ! Particle response time
   responseTimeInverse = 18.0_WP * viscosity / (particleDensity * part%diameter**2)
@@ -717,7 +717,7 @@ subroutine particle_rhs(part, dxdt, dudt, dwdt, dTdt, dmdt)
 
   ! Store minimum drag time for stability (based on max eigenvalue)
   if (dragCorrection.gt.0.0_WP .and. vf.lt.1.0_WP)  minDragTime = min(minDragTime,           &
-       density * part%diameter**2 / (18.0_WP * viscosity * dragCorrection * (1.0_WP - vf)))
+       1.0_WP / (responseTimeInverse * dragCorrection))
   minRep = min(minRep, Rep)
   maxRep = max(maxRep, Rep)
   minMap = min(minMap, Ma)

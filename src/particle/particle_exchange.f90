@@ -526,7 +526,7 @@ contains
   subroutine filter_extrapolated_field(f)
 
     ! External modules
-    !use grid_functions, only : implicit_diffusion
+    use grid_functions, only : implicit_diffusion
     use filter
 
     implicit none
